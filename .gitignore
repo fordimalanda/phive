@@ -3,7 +3,6 @@ node_modules/
 
 # Compilation (TypeScript/Webpack)
 out/
-dist/
 *.tsbuildinfo
 
 # Fichiers de tests

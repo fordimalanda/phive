@@ -1,3 +1,5 @@
+<center><img src="logo.png" witdh="100" height="100"></center>
+
 # Phive (PHP Live Server) 🚀
 
 Phive est une extension VS Code légère qui transforme votre environnement de développement PHP en une expérience "Live" moderne.
@@ -22,7 +24,7 @@ Phive est une extension VS Code légère qui transforme votre environnement de d
 
 ## 📄 Licence
 
-Ce projet est sous licence MIT. Voir le fichier [LICENSE](./LICENSE) pour plus de détails.
+Ce projet est sous licence MIT.
 
 ---
 Développé avec ❤️ par **fomadev**

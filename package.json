@@ -1,0 +1,60 @@
+{
+  "name": "phive",
+  "displayName": "Phive (PHP Live Server)",
+  "description": "Local PHP server with live reloading and network sharing (WiFi).",
+  "version": "1.0.0",
+  "publisher": "ton-nom",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "phive.startServer",
+        "title": "Phive: Start PHP Server",
+        "category": "Phive"
+      },
+      {
+        "command": "phive.stopServer",
+        "title": "Phive: Stop PHP Server",
+        "category": "Phive"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "phive.startServer",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out"
+  },
+  "devDependencies": {
+    "@types/node": "18.x",
+    "@types/vscode": "^1.80.0",
+    "@types/ws": "^8.5.5",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.1.6",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "ip-address": "^10.1.0",
+    "open": "^8.4.2",
+    "portfinder": "^1.0.38",
+    "ws": "^8.19.0"
+  }
+}

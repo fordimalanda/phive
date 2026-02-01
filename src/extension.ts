@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import * as os from 'os';
+import * as portfinder from 'portfinder';
+import * as open from 'open';
 import { PHPStackManager } from './serverManager';
 import { LiveReloadServer } from './liveReload';
 
@@ -10,53 +12,58 @@ let isRunning = false;
 
 export function activate(context: vscode.ExtensionContext) {
     
-    // Commande pour DÉMARRER le serveur
+    // Commande pour DÉMARRER
     let startCommand = vscode.commands.registerCommand('phive.startServer', async () => {
         const workspaceFolders = vscode.workspace.workspaceFolders;
-        
         if (!workspaceFolders) {
-            vscode.window.showErrorMessage("Open a folder or a PHP project first!");
+            vscode.window.showErrorMessage("Open a folder or a PHP project first !");
             return;
         }
 
         const rootPath = workspaceFolders[0].uri.fsPath;
         const ip = getLocalIPv4();
-        const port = 8000;   // Port du serveur PHP
-        const wsPort = 9001; // Port pour les WebSockets (Live Reload)
 
         try {
-            // 1. Démarrer le WebSocket Server pour le Live Reload
+            // 1. Trouver des ports libres automatiquement
+            // On cherche à partir de 8000 pour PHP et 9001 pour le WebSocket
+            const phpPort = await portfinder.getPortPromise({ port: 8000 });
+            const wsPort = await portfinder.getPortPromise({ port: 9001 });
+
+            // 2. Démarrer le serveur WebSocket (Live Reload)
             lrServer.start(wsPort);
 
-            // 2. Démarrer le serveur PHP (qui injecte le script pointant vers wsPort)
-            phpManager.start(rootPath, "0.0.0.0", port, wsPort, ip);
+            // 3. Démarrer le serveur PHP (avec injection du script de reload)
+            phpManager.start(rootPath, "0.0.0.0", phpPort, wsPort, ip);
             
             isRunning = true;
             updateStatusBar();
-            
-            vscode.window.showInformationMessage(`Phive is online! Access it at http://${ip}:${port}`);
-        } catch (error) {
-            vscode.window.showErrorMessage(`Failed to start Phive: ${error}`);
+
+            // 4. Ouverture automatique du navigateur
+            const url = `http://localhost:${phpPort}`;
+            await open(url);
+
+            vscode.window.showInformationMessage(`Phive active on ${url} (Network:${ip}:${phpPort})`);
+        } catch (err) {
+            vscode.window.showErrorMessage("Error starting services : " + err);
         }
     });
 
-    // Commande pour ARRÊTER le serveur
+    // Commande pour ARRÊTER
     let stopCommand = vscode.commands.registerCommand('phive.stopServer', () => {
         stopAllServices();
-        vscode.window.showInformationMessage("Phive services stopped.");
+        vscode.window.showInformationMessage("Phive server down.");
     });
 
-    // Initialisation de l'élément de la barre d'état
+    // Initialisation du bouton dans la barre d'état
     statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
     updateStatusBar();
     statusBarItem.show();
 
-    // Enregistrement des commandes et de la barre d'état pour le nettoyage
     context.subscriptions.push(startCommand, stopCommand, statusBarItem);
 }
 
 /**
- * Arrête proprement le serveur PHP et le serveur WebSocket
+ * Arrête tous les services en cours
  */
 function stopAllServices() {
     phpManager.stop();
@@ -66,25 +73,24 @@ function stopAllServices() {
 }
 
 /**
- * Met à jour l'interface visuelle du bouton dans la barre d'état
+ * Met à jour le bouton Go Live / Stop
  */
 function updateStatusBar() {
     if (!isRunning) {
         statusBarItem.text = `$(play) Phive: Go Live`;
         statusBarItem.command = 'phive.startServer';
         statusBarItem.backgroundColor = undefined;
-        statusBarItem.tooltip = "Launch Phive PHP server & Live Reload";
+        statusBarItem.tooltip = "Launch the PHP server and the Live Reload";
     } else {
         statusBarItem.text = `$(primitive-square) Phive: Stop`;
         statusBarItem.command = 'phive.stopServer';
-        // Utilise une couleur d'avertissement/erreur pour indiquer que c'est actif
         statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
-        statusBarItem.tooltip = "Stop all Phive services";
+        statusBarItem.tooltip = "Stop Phive";
     }
 }
 
 /**
- * Récupère l'adresse IPv4 locale pour permettre l'accès réseau (ex: WiFi)
+ * Récupère l'adresse IP locale (WiFi/Ethernet)
  */
 function getLocalIPv4(): string {
     const interfaces = os.networkInterfaces();
@@ -102,7 +108,7 @@ function getLocalIPv4(): string {
 }
 
 /**
- * Fonction appelée lors de la fermeture de VS Code ou de l'extension
+ * Nettoyage lors de la désactivation de l'extension
  */
 export function deactivate() {
     stopAllServices();

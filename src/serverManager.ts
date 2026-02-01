@@ -7,6 +7,7 @@ export class PHPStackManager {
     private _process: cp.ChildProcess | undefined;
     private _outputChannel: vscode.OutputChannel;
     private _routerPath: string | undefined;
+    private _requestCount = 0; // Compteur de requêtes
 
     constructor() {
         this._outputChannel = vscode.window.createOutputChannel("Phive Server Logs");
@@ -17,6 +18,7 @@ export class PHPStackManager {
      */
     public start(rootPath: string, host: string, port: number, wsPort: number, ip: string) {
         this.stop(); // Sécurité : On arrête un éventuel serveur déjà lancé
+        this._requestCount = 0; // Reset du compteur à chaque démarrage
 
         this._outputChannel.clear();
         this._outputChannel.show();
@@ -36,10 +38,9 @@ export class PHPStackManager {
                 socket.onopen = () => console.log('Phive: Live Reload Connected');
                 socket.onerror = () => console.error('Phive: Live Reload Connection Error');
             })();
-        </script>`.replace(/\n/g, ''); // On retire les retours à la ligne pour l'injection
+        </script>`.replace(/\n/g, ''); 
 
         // 2. Création du fichier Router PHP temporaire
-        // Ce script intercepte les requêtes pour injecter le JS avant d'envoyer la page
         this._routerPath = path.join(rootPath, '.phive_router.php');
         const routerContent = `<?php
         $path = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
@@ -53,14 +54,12 @@ export class PHPStackManager {
             ob_start();
             include $file;
             $content = ob_get_clean();
-            // Injecte le script juste avant la balise de fermeture body
             if (strpos($content, '</body>') !== false) {
                 echo str_replace("</body>", "${injectionScript}</body>", $content);
             } else {
                 echo $content . "${injectionScript}";
             }
         } else {
-            // Laisse le serveur PHP gérer les fichiers statiques (images, css, js originaux)
             return false;
         }
         `;
@@ -79,9 +78,18 @@ export class PHPStackManager {
 
         this._outputChannel.appendLine(`[Phive] Server started: http://${ip}:${port}`);
 
-        // Capturer les logs de sortie et d'erreur
+        // 4. Capturer et formater les logs (Requêtes et Erreurs)
         this._process.stderr?.on('data', (data) => {
-            this._outputChannel.append(data.toString());
+            const logLine = data.toString();
+            
+            // Le serveur PHP interne envoie les logs de connexion sur stderr
+            if (logLine.includes('Accepted') || logLine.includes(']')) {
+                this._requestCount++;
+                const time = new Date().toLocaleTimeString();
+                this._outputChannel.appendLine(`[Req #${this._requestCount}] ${time} - ${logLine.trim()}`);
+            } else {
+                this._outputChannel.append(logLine);
+            }
         });
 
         this._process.stdout?.on('data', (data) => {

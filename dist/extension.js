@@ -69,7 +69,7 @@ function activate(context) {
             updateStatusBar();
             const url = `http://localhost:${phpPort}`;
             open(url);
-            vscode.window.showInformationMessage(`Phive : Connectez votre mobile sur http://${ip}:${phpPort}`);
+            vscode.window.showInformationMessage(`Phive: Connect your mobile to http://${ip}:${phpPort}`);
         }
         catch (err) {
             vscode.window.showErrorMessage("Erreur Phive : " + err);

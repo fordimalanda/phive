@@ -3,7 +3,8 @@
   "displayName": "Phive (PHP Live Server)",
   "description": "Local PHP server with live reloading and network sharing (WiFi).",
   "version": "1.0.0",
-  "publisher": "ton-nom",
+  "publisher": "fomadev",
+  "icon": "logo.png",
   "engines": {
     "vscode": "^1.80.0"
   },

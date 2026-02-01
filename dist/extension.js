@@ -46,7 +46,7 @@ const portfinder = __importStar(__webpack_require__(2));
 const open = __webpack_require__(17);
 const serverManager_1 = __webpack_require__(22);
 const liveReload_1 = __webpack_require__(23);
-const networkUtils_1 = __webpack_require__(47); // On importe notre utilitaire ici
+const networkUtils_1 = __webpack_require__(49); // On importe notre utilitaire ici
 let statusBarItem;
 let phpManager = new serverManager_1.PHPStackManager();
 let lrServer = new liveReload_1.LiveReloadServer();
@@ -8658,10 +8658,10 @@ exports.LiveReloadServer = LiveReloadServer;
 
 const WebSocket = __webpack_require__(25);
 
-WebSocket.createWebSocketStream = __webpack_require__(44);
-WebSocket.Server = __webpack_require__(45);
-WebSocket.Receiver = __webpack_require__(38);
-WebSocket.Sender = __webpack_require__(41);
+WebSocket.createWebSocketStream = __webpack_require__(46);
+WebSocket.Server = __webpack_require__(47);
+WebSocket.Receiver = __webpack_require__(39);
+WebSocket.Sender = __webpack_require__(43);
 
 WebSocket.WebSocket = WebSocket;
 WebSocket.WebSocketServer = WebSocket.Server;
@@ -8688,9 +8688,9 @@ const { Duplex, Readable } = __webpack_require__(31);
 const { URL } = __webpack_require__(32);
 
 const PerMessageDeflate = __webpack_require__(33);
-const Receiver = __webpack_require__(38);
-const Sender = __webpack_require__(41);
-const { isBlob } = __webpack_require__(39);
+const Receiver = __webpack_require__(39);
+const Sender = __webpack_require__(43);
+const { isBlob } = __webpack_require__(40);
 
 const {
   BINARY_TYPES,
@@ -8705,8 +8705,8 @@ const {
 } = __webpack_require__(36);
 const {
   EventTarget: { addEventListener, removeEventListener }
-} = __webpack_require__(42);
-const { format, parse } = __webpack_require__(43);
+} = __webpack_require__(44);
+const { format, parse } = __webpack_require__(45);
 const { toBuffer } = __webpack_require__(35);
 
 const kAborted = Symbol('kAborted');
@@ -10128,7 +10128,7 @@ module.exports = require("url");
 const zlib = __webpack_require__(34);
 
 const bufferUtil = __webpack_require__(35);
-const Limiter = __webpack_require__(37);
+const Limiter = __webpack_require__(38);
 const { kStatusCode } = __webpack_require__(36);
 
 const FastBuffer = Buffer[Symbol.species];
@@ -10781,7 +10781,7 @@ module.exports = {
 /* istanbul ignore else  */
 if (!process.env.WS_NO_BUFFER_UTIL) {
   try {
-    const bufferUtil = __webpack_require__(Object(function webpackMissingModule() { var e = new Error("Cannot find module 'bufferutil'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+    const bufferUtil = __webpack_require__(37);
 
     module.exports.mask = function (source, mask, output, offset, length) {
       if (length < 48) _mask(source, mask, output, offset, length);
@@ -10826,6 +10826,13 @@ module.exports = {
 
 /***/ }),
 /* 37 */
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("bufferutil");
+
+/***/ }),
+/* 38 */
 /***/ ((module) => {
 
 "use strict";
@@ -10887,7 +10894,7 @@ module.exports = Limiter;
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
@@ -10903,7 +10910,7 @@ const {
   kWebSocket
 } = __webpack_require__(36);
 const { concat, toArrayBuffer, unmask } = __webpack_require__(35);
-const { isValidStatusCode, isValidUTF8 } = __webpack_require__(39);
+const { isValidStatusCode, isValidUTF8 } = __webpack_require__(40);
 
 const FastBuffer = Buffer[Symbol.species];
 
@@ -11600,13 +11607,13 @@ module.exports = Receiver;
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
 
 
-const { isUtf8 } = __webpack_require__(40);
+const { isUtf8 } = __webpack_require__(41);
 
 const { hasBlob } = __webpack_require__(36);
 
@@ -11747,7 +11754,7 @@ if (isUtf8) {
   };
 } /* istanbul ignore else  */ else if (!process.env.WS_NO_UTF_8_VALIDATE) {
   try {
-    const isValidUTF8 = __webpack_require__(Object(function webpackMissingModule() { var e = new Error("Cannot find module 'utf-8-validate'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+    const isValidUTF8 = __webpack_require__(42);
 
     module.exports.isValidUTF8 = function (buf) {
       return buf.length < 32 ? _isValidUTF8(buf) : isValidUTF8(buf);
@@ -11759,14 +11766,21 @@ if (isUtf8) {
 
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ ((module) => {
 
 "use strict";
 module.exports = require("buffer");
 
 /***/ }),
-/* 41 */
+/* 42 */
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("utf-8-validate");
+
+/***/ }),
+/* 43 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
@@ -11779,7 +11793,7 @@ const { randomFillSync } = __webpack_require__(30);
 
 const PerMessageDeflate = __webpack_require__(33);
 const { EMPTY_BUFFER, kWebSocket, NOOP } = __webpack_require__(36);
-const { isBlob, isValidStatusCode } = __webpack_require__(39);
+const { isBlob, isValidStatusCode } = __webpack_require__(40);
 const { mask: applyMask, toBuffer } = __webpack_require__(35);
 
 const kByteLength = Symbol('kByteLength');
@@ -12375,7 +12389,7 @@ function onError(sender, err, cb) {
 
 
 /***/ }),
-/* 42 */
+/* 44 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
@@ -12674,13 +12688,13 @@ function callListener(listener, thisArg, event) {
 
 
 /***/ }),
-/* 43 */
+/* 45 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
 
 
-const { tokenChars } = __webpack_require__(39);
+const { tokenChars } = __webpack_require__(40);
 
 /**
  * Adds an offer to the map of extension offers or a parameter to the map of
@@ -12884,7 +12898,7 @@ module.exports = { format, parse };
 
 
 /***/ }),
-/* 44 */
+/* 46 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
@@ -13052,7 +13066,7 @@ module.exports = createWebSocketStream;
 
 
 /***/ }),
-/* 45 */
+/* 47 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
@@ -13065,9 +13079,9 @@ const http = __webpack_require__(28);
 const { Duplex } = __webpack_require__(31);
 const { createHash } = __webpack_require__(30);
 
-const extension = __webpack_require__(43);
+const extension = __webpack_require__(45);
 const PerMessageDeflate = __webpack_require__(33);
-const subprotocol = __webpack_require__(46);
+const subprotocol = __webpack_require__(48);
 const WebSocket = __webpack_require__(25);
 const { CLOSE_TIMEOUT, GUID, kWebSocket } = __webpack_require__(36);
 
@@ -13613,13 +13627,13 @@ function abortHandshakeOrEmitwsClientError(
 
 
 /***/ }),
-/* 46 */
+/* 48 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
 
 
-const { tokenChars } = __webpack_require__(39);
+const { tokenChars } = __webpack_require__(40);
 
 /**
  * Parses the `Sec-WebSocket-Protocol` header into a set of subprotocol names.
@@ -13682,7 +13696,7 @@ module.exports = { parse };
 
 
 /***/ }),
-/* 47 */
+/* 49 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";

@@ -2,7 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
-  target: 'node', // Important : on tourne dans l'environnement Node de VS Code
+  target: 'node', // Important : l'extension tourne dans l'environnement Node.js de VS Code
   mode: 'none', 
   entry: {
     extension: './src/extension.ts'
@@ -26,7 +26,9 @@ module.exports = {
     ]
   },
   externals: {
-    vscode: 'commonjs vscode' // Ne pas inclure l'API VS Code dans le bundle
+    vscode: 'commonjs vscode',    // Ne pas inclure l'API VS Code dans le bundle final
+    bufferutil: 'bufferutil',      // Dépendance optionnelle souvent requise par 'ws'
+    'utf-8-validate': 'utf-8-validate' // Dépendance optionnelle souvent requise par 'ws'
   },
   devtool: 'source-map'
 };

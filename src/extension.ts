@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as portfinder from 'portfinder';
-import * as open from 'open';
+import open = require('open');
 import { PHPStackManager } from './serverManager';
 import { LiveReloadServer } from './liveReload';
 import { getLocalIPv4 } from './networkUtils'; // On importe notre utilitaire ici

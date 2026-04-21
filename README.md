@@ -1,30 +1,48 @@
-<center><img src="logo.png" witdh="100" height="100"></center>
+# Phive (PHP Live Server)
 
-# Phive (PHP Live Server) 🚀
+Phive is a professional Visual Studio Code extension designed to streamline PHP development by providing a modern, live-reloading environment. It eliminates the need for manual browser refreshes and complex server configurations, making it ideal for both local and cross-device testing.
 
-Phive est une extension VS Code légère qui transforme votre environnement de développement PHP en une expérience "Live" moderne.
+## Core Features
 
-## ✨ Fonctionnalités
+- **Instant PHP Server**: Launch a built-in PHP server instance directly from your workspace with a single click.
+- **Smart Live Reloading**: Automatically refreshes connected browsers (desktop and mobile) upon saving `.php`, `.html`, `.css`, `.js`, or `.json` files.
+- **Network Sharing**: Automatically detects your local IPv4 address, allowing seamless testing on mobile devices or tablets connected to the same network.
+- **Integrated Request Logging**: Real-time output channel providing detailed logs of incoming HTTP requests and server status.
+- **Multi-root Workspace Support**: Intelligent folder selection for developers working on multiple projects simultaneously.
+- **Customizable PHP Path**: Support for custom PHP binary locations, ensuring compatibility with XAMPP, WAMP, Laragon, or standalone PHP installations.
+- **Automated Routing**: Generates a temporary, hidden router script to handle asset serving and WebSocket injection without polluting your project structure.
 
-- **Go Live instantané** : Lancez un serveur PHP interne en un clic.
-- **Live Reload** : Vos navigateurs (PC et mobiles) se rafraîchissent automatiquement dès que vous sauvegardez un fichier `.php` ou `.html`.
-- **Partage Réseau** : Accédez à votre site via votre IP WiFi pour tester directement sur smartphone ou tablette.
-- **Logs Intégrés** : Suivez les requêtes entrantes en temps réel avec un compteur précis.
+## Requirements
 
-## 🛠️ Prérequis
+- **PHP**: PHP must be installed on your system.
+- **Environment**: By default, the extension expects the `php` executable to be in your system's PATH.
 
-- **PHP** doit être installé sur votre machine et ajouté à votre variable d'environnement PATH.
+## Installation
 
-## 🚀 Utilisation
+1. Open Visual Studio Code.
+2. Navigate to the Extensions view (`Ctrl+Shift+X`).
+3. Search for `Phive` and click Install.
 
-1. Ouvrez un dossier contenant des fichiers PHP.
-2. Cliquez sur le bouton **$(play) Phive: Go Live** dans la barre de statut (en bas à droite).
-3. Votre navigateur s'ouvre automatiquement.
-4. Modifiez votre code, sauvegardez... et admirez le résultat !
+## Configuration
 
-## 📄 Licence
+Phive provides the following configuration options through VS Code Settings (`Ctrl+,`):
 
-Ce projet est sous licence MIT.
+- `phive.phpPath`: Specifies the absolute path to the PHP executable. Set this if `php` is not in your system PATH (e.g., `C:\xampp\php\php.exe` on Windows).
+
+## Usage
+
+1. **Start the Server**: Open a PHP project folder. Click the **Phive: Go Live** button in the Status Bar (bottom right) or use the Command Palette (`Ctrl+Shift+P` -> `Phive: Start PHP Server`).
+2. **Select Folder**: If using a multi-root workspace, select the specific project folder you wish to serve.
+3. **Development**: The extension will automatically open your default browser. Any changes saved to supported files will trigger an immediate reload across all connected devices.
+4. **Stop the Server**: Click the active server info in the Status Bar or use the `Phive: Stop PHP Server` command.
+
+## Technical Overview
+
+Phive utilizes a WebSocket-based architecture (`ws` library) to maintain a persistent connection between the server and the client. During execution, it injects a lightweight JavaScript client into the PHP output stream via a temporary router file (`.phive_router.php`). This router file is automatically hidden from the VS Code File Explorer and securely deleted upon server termination to maintain workspace cleanliness.
+
+## License
+
+This project is licensed under the MIT License.
 
 ---
-Développé avec ❤️ par **fomadev**
+Developed by **FomaDev**

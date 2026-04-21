@@ -7,24 +7,28 @@ export class PHPStackManager {
     private _process: cp.ChildProcess | undefined;
     private _outputChannel: vscode.OutputChannel;
     private _routerPath: string | undefined;
-    private _requestCount = 0; // Compteur de requêtes
+    private _requestCount = 0;
 
     constructor() {
         this._outputChannel = vscode.window.createOutputChannel("Phive Server Logs");
     }
 
     /**
-     * Démarre le serveur PHP avec un routeur personnalisé pour le Live Reload
+     * Démarre le serveur PHP avec un routeur personnalisé et le binaire configuré
      */
-    public start(rootPath: string, host: string, port: number, wsPort: number, ip: string) {
-        this.stop(); // Sécurité : On arrête un éventuel serveur déjà lancé
-        this._requestCount = 0; // Reset du compteur à chaque démarrage
+    public async start(rootPath: string, host: string, port: number, wsPort: number, ip: string) {
+        this.stop(); 
+        this._requestCount = 0;
+
+        // 1. Récupérer le chemin PHP depuis la configuration
+        const config = vscode.workspace.getConfiguration('phive');
+        const phpBinary = config.get<string>('phpPath') || 'php';
 
         this._outputChannel.clear();
         this._outputChannel.show();
-        this._outputChannel.appendLine(`[Phive] Attempting to start on http://${ip}:${port}`);
+        this._outputChannel.appendLine(`[Phive] Attempting to start using: ${phpBinary}`);
 
-        // 1. Script JS à injecter dans les pages HTML/PHP
+        // 2. Script JS à injecter (Live Reload)
         const injectionScript = `
         <script>
             (function() {
@@ -40,8 +44,9 @@ export class PHPStackManager {
             })();
         </script>`.replace(/\n/g, ''); 
 
-        // 2. Création du fichier Router PHP temporaire
-        this._routerPath = path.join(rootPath, '.phive_router.php');
+        // 3. Création du fichier Router PHP temporaire
+        const routerFileName = '.phive_router.php';
+        this._routerPath = path.join(rootPath, routerFileName);
         const routerContent = `<?php
         $path = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
         $file = __DIR__ . $path;
@@ -66,23 +71,23 @@ export class PHPStackManager {
 
         try {
             fs.writeFileSync(this._routerPath, routerContent);
+            // Masquer le fichier dans l'explorateur VS Code
+            this._toggleFileVisibility(routerFileName, true);
         } catch (err) {
             vscode.window.showErrorMessage(`Failed to create router file: ${err}`);
             return;
         }
 
-        // 3. Lancer le serveur PHP Built-in
-        this._process = cp.spawn('php', ['-S', `${host}:${port}`, this._routerPath], {
+        // 4. Lancer le serveur avec le binaire personnalisé
+        this._process = cp.spawn(phpBinary, ['-S', `${host}:${port}`, this._routerPath], {
             cwd: rootPath
         });
 
         this._outputChannel.appendLine(`[Phive] Server started: http://${ip}:${port}`);
 
-        // 4. Capturer et formater les logs (Requêtes et Erreurs)
+        // 5. Gestion des logs et erreurs
         this._process.stderr?.on('data', (data) => {
             const logLine = data.toString();
-            
-            // Le serveur PHP interne envoie les logs de connexion sur stderr
             if (logLine.includes('Accepted') || logLine.includes(']')) {
                 this._requestCount++;
                 const time = new Date().toLocaleTimeString();
@@ -96,20 +101,23 @@ export class PHPStackManager {
             this._outputChannel.append(data.toString());
         });
 
-        // Nettoyage à la fermeture
         this._process.on('close', (code) => {
             this._outputChannel.appendLine(`[Phive] Server stopped (Code: ${code})`);
             this._cleanup();
         });
 
-        this._process.on('error', (err) => {
-            vscode.window.showErrorMessage(`PHP Error: ${err.message}. Ensure PHP is in your PATH.`);
+        this._process.on('error', (err: any) => {
+            const errorMsg = err.code === 'ENOENT' 
+                ? `PHP executable not found at "${phpBinary}". Check your Phive settings.`
+                : `PHP Error: ${err.message}`;
+            
+            vscode.window.showErrorMessage(errorMsg);
             this._cleanup();
         });
     }
 
     /**
-     * Arrête le processus PHP et nettoie les fichiers temporaires
+     * Arrête le processus PHP et nettoie
      */
     public stop() {
         if (this._process) {
@@ -121,15 +129,43 @@ export class PHPStackManager {
     }
 
     /**
-     * Supprime le fichier router temporaire
+     * Supprime le fichier router et le réaffiche dans VS Code
      */
     private _cleanup() {
-        if (this._routerPath && fs.existsSync(this._routerPath)) {
-            try {
-                fs.unlinkSync(this._routerPath);
-            } catch (e) {
-                console.error("Failed to delete router file", e);
+        if (this._routerPath) {
+            const routerFileName = path.basename(this._routerPath);
+            
+            // 1. Réafficher le fichier avant de le supprimer pour éviter les résidus de config
+            this._toggleFileVisibility(routerFileName, false);
+
+            // 2. Suppression physique
+            if (fs.existsSync(this._routerPath)) {
+                try {
+                    fs.unlinkSync(this._routerPath);
+                } catch (e) {
+                    console.error("Failed to delete router file", e);
+                }
             }
         }
+    }
+
+    /**
+     * Ajoute ou retire le fichier de la liste d'exclusion de VS Code
+     */
+    private async _toggleFileVisibility(fileName: string, hide: boolean) {
+        const config = vscode.workspace.getConfiguration('files');
+        // On récupère une copie profonde pour ne pas muter l'original directement
+        const exclude = { ...config.get<any>('exclude') };
+        
+        const isCurrentlyHidden = !!exclude[fileName];
+        if (hide === isCurrentlyHidden) return; // Pas de changement nécessaire
+
+        if (hide) {
+            exclude[fileName] = true;
+        } else {
+            delete exclude[fileName];
+        }
+
+        await config.update('exclude', exclude, vscode.ConfigurationTarget.Workspace);
     }
 }

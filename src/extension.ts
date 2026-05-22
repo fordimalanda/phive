@@ -37,24 +37,43 @@ export function activate(context: vscode.ExtensionContext) {
         currentIp = getLocalIPv4();
 
         try {
-            // Recherche de ports libres
+            // Détection automatique et robuste des ports libres si 8000 ou 9001 sont occupés
             currentPort = await portfinder.getPortPromise({ port: 8000 });
             const wsPort = await portfinder.getPortPromise({ port: 9001 });
 
-            // Démarrage des serveurs
+            // Notification si les ports par défaut ont été modifiés à cause d'un conflit
+            if (currentPort !== 8000) {
+                vscode.window.showWarningMessage(`Port 8000 is occupied. Phive automatically switched to port ${currentPort}.`);
+            }
+            
+            if (wsPort !== 9001) {
+                vscode.window.showWarningMessage(`Port 9001 is occupied. WebSocket port automatically switched to ${wsPort}.`);
+            }
+
+            // Démarrage des serveurs avec les ports sécurisés
             lrServer.start(wsPort);
             phpManager.start(rootPath, "0.0.0.0", currentPort, wsPort, currentIp);
             
             isRunning = true;
             updateStatusBar(currentIp, currentPort);
 
-            // Ouverture du navigateur local
+            // Ouverture du navigateur local sur le port dynamique adéquat
             const url = `http://localhost:${currentPort}`;
             open(url);
 
-            vscode.window.showInformationMessage(`Phive: Connect your mobile device to http://${currentIp}:${currentPort}`);
+            // Message informatif avec le port réellement utilisé
+            const networkUrl = `http://${currentIp}:${currentPort}`;
+            vscode.window.showInformationMessage(`✅ Phive Live: Server active on ${networkUrl}`);
+            
+            // Notification additionnelle si le port est différent du défaut
+            if (currentPort !== 8000) {
+                vscode.window.showInformationMessage(`📱 Connect your mobile device to ${networkUrl} (custom port due to conflict)`);
+            } else {
+                vscode.window.showInformationMessage(`📱 Connect your mobile device to ${networkUrl}`);
+            }
+            
         } catch (err) {
-            vscode.window.showErrorMessage("Phive error: " + err);
+            vscode.window.showErrorMessage("❌ Phive port allocation error: " + err);
         }
     });
 
@@ -63,6 +82,7 @@ export function activate(context: vscode.ExtensionContext) {
         lrServer.stop();
         isRunning = false;
         updateStatusBar();
+        vscode.window.showInformationMessage("🛑 Phive server stopped");
     });
 
     // Initialisation de la barre de statut
@@ -80,13 +100,13 @@ function updateStatusBar(ip?: string, port?: number) {
     if (!isRunning) {
         statusBarItem.text = `$(play) Phive: Go Live`;
         statusBarItem.command = 'phive.startServer';
-        statusBarItem.tooltip = "Start the PHP Live Reload server";
+        statusBarItem.tooltip = "🚀 Start the PHP Live Reload server";
         statusBarItem.backgroundColor = undefined;
     } else {
-        // Affichage pro de l'IP et du Port
+        // Affichage professionnel de l'IP et du Port réellement utilisés
         statusBarItem.text = `$(primitive-square) Phive: ${ip}:${port}`;
         statusBarItem.command = 'phive.stopServer';
-        statusBarItem.tooltip = `Serveur actif sur http://${ip}:${port} (Click to stop)`;
+        statusBarItem.tooltip = `✅ Server active on http://${ip}:${port} (Click to stop)`;
         
         // Utilisation d'une couleur distinctive (rouge/orange) pour indiquer que le serveur tourne
         statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');

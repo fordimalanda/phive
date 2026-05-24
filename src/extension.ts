@@ -36,14 +36,18 @@ export function activate(context: vscode.ExtensionContext) {
 
         currentIp = getLocalIPv4();
 
+        // Récupération du port préféré depuis les paramètres utilisateur (Défaut: 8000)
+        const config = vscode.workspace.getConfiguration('phive');
+        const preferredPort = config.get<number>('port') || 8000;
+
         try {
-            // Détection automatique et robuste des ports libres si 8000 ou 9001 sont occupés
-            currentPort = await portfinder.getPortPromise({ port: 8000 });
+            // Détection automatique et robuste des ports libres à partir du port préféré
+            currentPort = await portfinder.getPortPromise({ port: preferredPort });
             const wsPort = await portfinder.getPortPromise({ port: 9001 });
 
-            // Notification si les ports par défaut ont été modifiés à cause d'un conflit
-            if (currentPort !== 8000) {
-                vscode.window.showWarningMessage(`Port 8000 is occupied. Phive automatically switched to port ${currentPort}.`);
+            // Notification si les ports par défaut ou configurés ont été modifiés à cause d'un conflit
+            if (currentPort !== preferredPort) {
+                vscode.window.showWarningMessage(`Port ${preferredPort} is occupied. Phive automatically switched to port ${currentPort}.`);
             }
             
             if (wsPort !== 9001) {
@@ -65,8 +69,8 @@ export function activate(context: vscode.ExtensionContext) {
             const networkUrl = `http://${currentIp}:${currentPort}`;
             vscode.window.showInformationMessage(`✅ Phive Live: Server active on ${networkUrl}`);
             
-            // Notification additionnelle si le port est différent du défaut
-            if (currentPort !== 8000) {
+            // Notification additionnelle si le port est différent du défaut/configuré
+            if (currentPort !== preferredPort) {
                 vscode.window.showInformationMessage(`📱 Connect your mobile device to ${networkUrl} (custom port due to conflict)`);
             } else {
                 vscode.window.showInformationMessage(`📱 Connect your mobile device to ${networkUrl}`);
@@ -108,7 +112,7 @@ function updateStatusBar(ip?: string, port?: number) {
         statusBarItem.command = 'phive.stopServer';
         statusBarItem.tooltip = `✅ Server active on http://${ip}:${port} (Click to stop)`;
         
-        // Utilisation d'une couleur distinctive (rouge/orange) pour indiquer que le serveur tourne
+        // Utilisation d'une couleur distinctive pour indiquer que le serveur tourne
         statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
     }
 }

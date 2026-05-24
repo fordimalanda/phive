@@ -30,6 +30,8 @@ Phive provides the following configuration options through VS Code Settings (`Ct
 
 - `phive.phpPath`: Specifies the absolute path to the PHP executable. Set this if `php` is not in your system PATH (e.g., `C:\xampp\php\php.exe` on Windows).
 
+- `phive.port`: Specifies the preferred local port for the PHP server instance (Default: `8000`). Ideal for restrictive local network environments or static proxy routing rules.
+
 ## Usage
 
 1. **Start the Server**: Open a PHP project folder. Click the **Phive: Go Live** button in the Status Bar (bottom right) or use the Command Palette (`Ctrl+Shift+P` -> `Phive: Start PHP Server`).

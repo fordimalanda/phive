@@ -36,16 +36,16 @@ export function activate(context: vscode.ExtensionContext) {
 
         currentIp = getLocalIPv4();
 
-        // Récupération du port préféré depuis les paramètres utilisateur (Défaut: 8000)
+        // 2. Récupération du port dynamique depuis les paramètres utilisateur (Défaut: 8000)
         const config = vscode.workspace.getConfiguration('phive');
         const preferredPort = config.get<number>('port') || 8000;
 
         try {
-            // Détection automatique et robuste des ports libres à partir du port préféré
+            // 3. Utilisation du port configuré comme point de départ pour portfinder
             currentPort = await portfinder.getPortPromise({ port: preferredPort });
             const wsPort = await portfinder.getPortPromise({ port: 9001 });
 
-            // Notification si les ports par défaut ou configurés ont été modifiés à cause d'un conflit
+            // Alerte l'utilisateur si le port préféré ou le port WS est occupé
             if (currentPort !== preferredPort) {
                 vscode.window.showWarningMessage(`Port ${preferredPort} is occupied. Phive automatically switched to port ${currentPort}.`);
             }
@@ -54,22 +54,22 @@ export function activate(context: vscode.ExtensionContext) {
                 vscode.window.showWarningMessage(`Port 9001 is occupied. WebSocket port automatically switched to ${wsPort}.`);
             }
 
-            // Démarrage des serveurs avec les ports sécurisés
+            // Démarrage des serveurs avec les ports validés
             lrServer.start(wsPort);
             phpManager.start(rootPath, "0.0.0.0", currentPort, wsPort, currentIp);
             
             isRunning = true;
             updateStatusBar(currentIp, currentPort);
 
-            // Ouverture du navigateur local sur le port dynamique adéquat
+            // Ouverture du navigateur local
             const url = `http://localhost:${currentPort}`;
             open(url);
 
-            // Message informatif avec le port réellement utilisé
+            // Message informatif principal
             const networkUrl = `http://${currentIp}:${currentPort}`;
             vscode.window.showInformationMessage(`✅ Phive Live: Server active on ${networkUrl}`);
             
-            // Notification additionnelle si le port est différent du défaut/configuré
+            // Notification pour la connexion réseau/mobile
             if (currentPort !== preferredPort) {
                 vscode.window.showInformationMessage(`📱 Connect your mobile device to ${networkUrl} (custom port due to conflict)`);
             } else {
@@ -107,12 +107,12 @@ function updateStatusBar(ip?: string, port?: number) {
         statusBarItem.tooltip = "🚀 Start the PHP Live Reload server";
         statusBarItem.backgroundColor = undefined;
     } else {
-        // Affichage professionnel de l'IP et du Port réellement utilisés
+        // Affichage de l'IP et du Port réellement utilisés
         statusBarItem.text = `$(primitive-square) Phive: ${ip}:${port}`;
         statusBarItem.command = 'phive.stopServer';
         statusBarItem.tooltip = `✅ Server active on http://${ip}:${port} (Click to stop)`;
         
-        // Utilisation d'une couleur distinctive pour indiquer que le serveur tourne
+        // Couleur d'arrière-plan distinctive pour indiquer le statut actif
         statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
     }
 }

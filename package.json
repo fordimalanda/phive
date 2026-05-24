@@ -1,8 +1,8 @@
 {
   "name": "phive",
   "displayName": "Phive (PHP Live Server)",
-  "description": "Local PHP server with live reloading and network sharing (WiFi).",
-  "version": "1.1.1",
+  "description": "Local PHP server with automatic port conflict resolution, live reloading, and WiFi network sharing.",
+  "version": "1.1.2",
   "publisher": "fomadev",
   "icon": "logo.png",
   "repository": {
@@ -24,7 +24,12 @@
         "phive.phpPath": {
           "type": "string",
           "default": "php",
-          "description": "Full path to the PHP executable (e.g., C:\\php\\php.exe). By default, 'php' uses your system PATH."
+          "description": "Full path to the PHP executable (e.g., C:\\\\php\\\\php.exe). By default, 'php' uses your system PATH."
+        },
+        "phive.port": {
+          "type": "number",
+          "default": 8000,
+          "description": "Preferred local port for the PHP server instance. If the specified port is occupied, Phive will automatically fall back to the next available sequential port."
         }
       }
     },

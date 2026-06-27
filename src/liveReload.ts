@@ -1,10 +1,11 @@
-import { WebSocketServer, WebSocket } from 'ws';
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { WebSocketServer, WebSocket } from 'ws';
 
 export class LiveReloadServer {
     private _wss: WebSocketServer | undefined;
     private _clients: Set<WebSocket> = new Set();
+    private _reloadTimeout: NodeJS.Timeout | undefined;
     
     // Extensions de fichiers à surveiller pour le rechargement
     private readonly WATCHED_EXTENSIONS = ['php', 'html', 'css', 'js', 'json'];
@@ -23,9 +24,26 @@ export class LiveReloadServer {
             const ext = path.extname(fileName).toLowerCase().replace('.', '');
 
             if (this.WATCHED_EXTENSIONS.includes(ext)) {
-                this.broadcastReload();
+                this.scheduleReload();
             }
         });
+    }
+
+    /**
+     * Lit la configuration utilisateur et planifie le rechargement avec le délai requis.
+     * Le debounce annule un rechargement précédent si une rafale de fichiers est enregistrée.
+     */
+    private scheduleReload() {
+        const config = vscode.workspace.getConfiguration('phive');
+        const delay = config.get<number>('reloadDelay') ?? 100;
+
+        if (this._reloadTimeout) {
+            clearTimeout(this._reloadTimeout);
+        }
+
+        this._reloadTimeout = setTimeout(() => {
+            this.broadcastReload();
+        }, delay);
     }
 
     private broadcastReload() {
@@ -37,6 +55,9 @@ export class LiveReloadServer {
     }
 
     public stop() {
+        if (this._reloadTimeout) {
+            clearTimeout(this._reloadTimeout);
+        }
         this._wss?.close();
         this._clients.clear();
     }

@@ -7,11 +7,11 @@ on:
     branches: [ main, master ]
 
 jobs:
-  validate:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Codex
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -25,3 +25,6 @@ jobs:
 
       - name: Code Verification (Compile)
         run: npm run compile
+
+      - name: Test Package Generation
+        run: npx vsce package

@@ -6,6 +6,7 @@ Phive is a professional Visual Studio Code extension designed to streamline PHP 
 
 - **Instant PHP Server**: Launch a built-in PHP server instance directly from your workspace with a single click.
 - **Smart Live Reloading**: Automatically refreshes connected browsers (desktop and mobile) upon saving `.php`, `.html`, `.css`, `.js`, or `.json` files.
+- **Configurable Reload Delay**: Avoids premature browser refreshes on heavy asset compilation or slow file writes by adding an adjustable delay.
 - **Port Conflict Resolution**: Automatically detects if port 8000 or the WebSocket port is occupied by another application and switches to the next available port, preventing environment crashes.
 - **Network Sharing**: Automatically detects your local IPv4 address, allowing seamless testing on mobile devices or tablets connected to the same network.
 - **Integrated Request Logging**: Real-time output channel providing detailed logs of incoming HTTP requests and server status.
@@ -32,6 +33,8 @@ Phive provides the following configuration options through VS Code Settings (`Ct
 
 - `phive.port`: Specifies the preferred local port for the PHP server instance (Default: `8000`). Ideal for restrictive local network environments or static proxy routing rules.
 
+- `phive.reloadDelay`: Specifies the delay in milliseconds before triggering a browser reload (Default: `100`). Perfect if your environment or builder needs a moment to fully compile assets before refreshing.
+
 ## Usage
 
 1. **Start the Server**: Open a PHP project folder. Click the **Phive: Go Live** button in the Status Bar (bottom right) or use the Command Palette (`Ctrl+Shift+P` -> `Phive: Start PHP Server`).
@@ -43,13 +46,19 @@ Phive provides the following configuration options through VS Code Settings (`Ct
 
 Phive utilizes a WebSocket-based architecture (`ws` library) to maintain a persistent connection between the server and the client. During execution, it injects a lightweight JavaScript client into the PHP output stream via a temporary router file (`.phive_router.php`). This router file is automatically hidden from the VS Code File Explorer and securely deleted upon server termination to maintain workspace cleanliness.
 
+## Changelog
+
+### v1.1.3
+- **Live Reload Optimization**: Added the `phive.reloadDelay` configuration to prevent early browser refreshes during heavy file operations or slow disk writes.
+- **Debounced Refresh**: Merged consecutive file-save events into a single reload event to reduce browser lag.
+
 ## Contributing
 
 Contributions must comply with the official project guidelines. Please read the [CONTRIBUTING.md](CONTRIBUTING.md) file before submitting any code, issues, or pull requests.
 
 ## License
 
-This project is licensed under the **FomaDev Public License (FPL)**. Commercial distribution, redistribution of modified source code, or hosting derivative services based on this engine requires a explicit paid license. See the [LICENSE](LICENSE) file for full legal terms and conditions.
+This project is licensed under the **FomaDev Public License (FPL)**. Commercial distribution, redistribution of modified source code, or hosting derivative services based on this engine requires an explicit paid license. See the [LICENSE](LICENSE) file for full legal terms and conditions.
 
 ---
 Developed by **FomaDev**

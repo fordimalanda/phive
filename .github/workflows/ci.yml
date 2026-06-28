@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20 # Correction : Passage à Node 20 pour supporter les outils de package récents
+          node-version: 20
           cache: 'npm'
 
       - name: Install Dependencies
@@ -27,4 +27,12 @@ jobs:
         run: npm run compile
 
       - name: Test Package Generation
-        run: npx @vscode/vsce package # Correction : Utilisation du nouvel outil officiel de Microsoft
+        run: npx @vscode/vsce package
+
+      # Extrait le fichier .vsix généré pour le rendre téléchargeable
+      - name: Upload VSIX Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phive-extension-package # Nom du dossier d'artefact sur GitHub
+          path: "*.vsix"                # Récupère automatiquement tout fichier .vsix (respecte la version)
+          if-no-files-found: error

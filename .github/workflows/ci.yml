@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20 # Correction : Passage à Node 20 pour supporter les outils de package récents
           cache: 'npm'
 
       - name: Install Dependencies
@@ -27,4 +27,4 @@ jobs:
         run: npm run compile
 
       - name: Test Package Generation
-        run: npx vsce package
+        run: npx @vscode/vsce package # Correction : Utilisation du nouvel outil officiel de Microsoft

@@ -32,10 +32,23 @@
           "description": "Preferred local port for the PHP server instance. If the specified port is occupied, Phive will automatically fall back to the next available sequential port."
         },
         "phive.reloadDelay": {
-        "type": "number",
-        "default": 100,
-        "description": "Delay in milliseconds before triggering a browser reload. Helpful if PHP or build assets require a moment to save completely."
-      }
+          "type": "number",
+          "default": 100,
+          "description": "Delay in milliseconds before triggering a browser reload. Helpful if PHP or build assets require a moment to save completely."
+        },
+        "phive.ignorePaths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "node_modules",
+            ".git",
+            "vendor",
+            "cache"
+          ],
+          "description": "List of folder names or path segments to ignore. File changes inside these paths will not trigger a live reload."
+        }
       }
     },
     "commands": [

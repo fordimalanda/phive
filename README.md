@@ -51,7 +51,7 @@ Phive utilizes a WebSocket-based architecture (`ws` library) to maintain a persi
 
 ## Changelog
 
-### v1.1.x
+### v1.1.4
 - **Path Exclusion Filtering**: Added the `phive.ignorePaths` configuration array to easily mute unneeded folder segments.
 - **Performance Boost**: Implemented micro-second early exits when processing saved files within ignored directories to prevent background system lag.
 

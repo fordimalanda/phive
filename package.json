@@ -3,11 +3,11 @@
   "displayName": "Phive (PHP Live Server)",
   "description": "Local PHP server with automatic port conflict resolution, live reloading, and WiFi network sharing.",
   "version": "1.2.1",
-  "publisher": "fomadev",
+  "publisher": "fordimalanda",
   "icon": "logo.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fomadev/phive.git"
+    "url": "https://github.com/fordimalanda/phive.git"
   },
   "engines": {
     "vscode": "^1.80.0"

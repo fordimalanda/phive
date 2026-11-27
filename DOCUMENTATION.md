@@ -1,12 +1,12 @@
-# Phive (PHP Live Server) v1.3.0: Technical Documentation and User Guide
+# phive-server (PHP Live Server) v1.3.0: Technical Documentation and User Guide
 
 ---
 
 ## 1. Introduction and Overview
 
-Phive (PHP Live Server) is a Visual Studio Code extension developed by fordimalanda. It is designed to streamline the local PHP development workflow by eliminating manual browser refreshes, complex local web server setups (Apache, Nginx configurations), and port collision issues.
+phive-server (PHP Live Server) is a Visual Studio Code extension developed by fordimalanda. It is designed to streamline the local PHP development workflow by eliminating manual browser refreshes, complex local web server setups (Apache, Nginx configurations), and port collision issues.
 
-Phive combines the PHP CLI built-in web server with a WebSocket-based live-reloading engine, dynamic router management, native theme-aware log colorization, and an integrated HTTPS reverse proxy architecture. It supports instant feedback during development across local desktop browsers and network-connected devices such as smartphones and tablets.
+phive-server combines the PHP CLI built-in web server with a WebSocket-based live-reloading engine, dynamic router management, native theme-aware log colorization, and an integrated HTTPS reverse proxy architecture. It supports instant feedback during development across local desktop browsers and network-connected devices such as smartphones and tablets.
 
 ### Core Objectives
 * Provide single-click, zero-configuration local PHP server execution directly within Visual Studio Code.

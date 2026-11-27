@@ -1,6 +1,6 @@
-# Phive (PHP Live Server)
+# phive-server (PHP Live Server)
 
-Phive is a Visual Studio Code extension designed to modernize PHP development by providing an automated local server environment with live-reloading, intelligent port management, and cross-device network testing.
+phive-server is a Visual Studio Code extension designed to modernize PHP development by providing an automated local server environment with live-reloading, intelligent port management, and cross-device network testing.
 
 For complete technical documentation, architecture deep-dives, and detailed configuration guides, refer to [DOCUMENTATION.md](DOCUMENTATION.md).
 

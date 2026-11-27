@@ -82,6 +82,16 @@ For comprehensive technical guides, execution flows, and troubleshooting instruc
 
 ## Changelog
 
+### v1.3.0
+* **Open Source Transition (MIT License)**:
+  * Relicensed the project from the custom license to the standard [MIT License](LICENSE).
+  * Updated contribution guidelines (`CONTRIBUTING.md`) and CI/CD release headers (`release.yml`).
+* **Repository & Marketplace Migration**:
+  * Migrated official repository ownership and Visual Studio Code Marketplace publisher namespace to `fordimalanda` (`fordimalanda.phive`).
+  * Updated extension logo and documentation references.
+* **Dependency Maintenance**:
+  * Updated runtime dependencies (`ip-address` `^10.7.6`, `open` `^11.0.2`, `ws` `^8.22.1`) and TypeScript toolchain (`^6.0.3`).
+
 ### v1.2.1
 * **Dependency Upgrades & Security**:
   * Bumped `open` to `11.0.1` ([#28](https://github.com/fordimalanda/phive/pull/28)) for resilient cross-platform browser launching.
@@ -93,12 +103,12 @@ For comprehensive technical guides, execution flows, and troubleshooting instruc
 ### v1.2.0
 * **Dual Operation Modes**: Added HTTPS mode via integrated Node.js reverse proxy with TLS termination alongside standard HTTP mode.
 * **SSL Certificate Management**: Support for custom `.crt`/`.key` files and automatic 2048-bit RSA self-signed certificate generation.
-* **Dynamic WebSocket Host Resolution**: Runtime client resolution using `window.location.hostname` for seamless LAN and WiFi testing.
+* **Dynamic WebSocket Host Resolution**: Runtime client resolution using `window.location.hostname` for LAN and WiFi testing.
 
 ---
 
-## Contributing
+## Contributing & License
 
-Contributions must comply with project governance. Please review [CONTRIBUTING.md](CONTRIBUTING.md) prior to submitting pull requests or opening issues.
+Contributions are welcome under the terms of the [MIT License](LICENSE). Please review [CONTRIBUTING.md](CONTRIBUTING.md) prior to submitting pull requests or opening issues.
 
 Developed by **fordimalanda**

@@ -4,7 +4,7 @@
 
 ## 1. Introduction and Overview
 
-Phive (PHP Live Server) is a Visual Studio Code extension developed by FomaDev. It is designed to streamline the local PHP development workflow by eliminating manual browser refreshes, complex local web server setups (Apache, Nginx configurations), and port collision issues.
+Phive (PHP Live Server) is a Visual Studio Code extension developed by fordimalanda. It is designed to streamline the local PHP development workflow by eliminating manual browser refreshes, complex local web server setups (Apache, Nginx configurations), and port collision issues.
 
 Phive combines the PHP CLI built-in web server with a WebSocket-based live-reloading engine, dynamic router management, native theme-aware log colorization, and an integrated HTTPS reverse proxy architecture. It supports instant feedback during development across local desktop browsers and network-connected devices such as smartphones and tablets.
 
@@ -77,7 +77,7 @@ Phive utilizes `portfinder` to verify the availability of the HTTP/HTTPS port (d
 ### Installation via Visual Studio Code Marketplace
 1. Open Visual Studio Code.
 2. Navigate to the Extensions view (`Ctrl+Shift+X` on Windows/Linux or `Cmd+Shift+X` on macOS).
-3. Search for `Phive` or `fomadev.phive`.
+3. Search for `Phive` or `fordimalanda.phive`.
 4. Click **Install**.
 
 ### Installation from VSIX Package
@@ -143,69 +143,78 @@ All settings can be configured through the Visual Studio Code Settings editor (`
 
 Phive is built on a modular TypeScript architecture designed for clean separation of concerns:
 
+
 ```
+
 src/
 ├── extension.ts                  # Entry point, lifecycle, and command registration
 ├── serverManager.ts              # PHP process orchestration and reverse proxy coordination
 ├── liveReload.ts                 # WebSocket server, file watcher, and debounce logic
 ├── networkUtils.ts               # Local IPv4 interface discovery
 └── serverHelpers/
-    ├── httpsProxy.ts             # HTTPS Reverse Proxy (HTTP & WSS forwarding)
-    ├── sslManager.ts             # SSL certificate resolution and self-signed generation
-    ├── routerBuilder.ts          # PHP injection router generation
-    ├── serverLogger.ts           # OutputChannel log formatting and status code classification
-    └── fileVisibility.ts         # VS Code workspace files.exclude management
+├── httpsProxy.ts             # HTTPS Reverse Proxy (HTTP & WSS forwarding)
+├── sslManager.ts             # SSL certificate resolution and self-signed generation
+├── routerBuilder.ts          # PHP injection router generation
+├── serverLogger.ts           # OutputChannel log formatting and status code classification
+└── fileVisibility.ts         # VS Code workspace files.exclude management
+
 ```
 
 ### 7.1 Runtime Architecture Diagrams
 
 #### HTTP Mode Architecture
+
 ```
+
 +-------------------------------------------------------------+
 |                      Visual Studio Code                     |
 +-------------------------------------------------------------+
-        |                                       |
-        v                                       v
+|                                       |
+v                                       v
 +-----------------------+               +---------------------+
 | PHPStackManager       |               | LiveReloadServer    |
 | (spawns php CLI)      |               | (WebSocket Server)  |
 +-----------------------+               +---------------------+
-        | (0.0.0.0:8000)                        | (0.0.0.0:9001)
-        v                                       v
+| (0.0.0.0:8000)                        | (0.0.0.0:9001)
+v                                       v
 +-------------------------------------------------------------+
 |                       Browser Client                        |
 | - HTTP Request -> http://localhost:8000                     |
 | - Live Reload -> ws://localhost:9001                        |
 +-------------------------------------------------------------+
+
 ```
 
 #### HTTPS Reverse Proxy Architecture
+
 ```
+
 +-------------------------------------------------------------+
 |                      Visual Studio Code                     |
 +-------------------------------------------------------------+
-        |                                       |
-        v                                       v
+|                                       |
+v                                       v
 +-----------------------+               +---------------------+
 | HTTPSProxyServer      |               | LiveReloadServer    |
 | (TLS Termination)     |               | (WebSocket Server)  |
 +-----------------------+               +---------------------+
-        | (0.0.0.0:8000 - Public HTTPS)         | (Internal WS: 9001)
-        |                                       |
-        +---------------+                       |
-        | Forward HTTP  | Proxy WSS             |
-        v               v                       v
+| (0.0.0.0:8000 - Public HTTPS)         | (Internal WS: 9001)
+|                                       |
++---------------+                       |
+| Forward HTTP  | Proxy WSS             |
+v               v                       v
 +------------------+  +---------------------------------------+
 | PHP CLI Process  |  | Proxy Upgrade Relay                   |
 | (127.0.0.1:8010) |  | (wss://localhost:8000 -> ws://:9001)  |
 +------------------+  +---------------------------------------+
-        ^
-        |
+^
+|
 +-------------------------------------------------------------+
 |                       Browser Client                        |
 | - HTTPS Request -> https://localhost:8000                   |
 | - Live Reload   -> wss://localhost:8000                     |
 +-------------------------------------------------------------+
+
 ```
 
 ### 7.2 Module Responsibilities
@@ -267,12 +276,14 @@ src/
            socket.onerror = () => console.error('Phive: Live Reload Connection Error');
        })();
    </script>
-   ```
+  ```
+
 7. Phive hides `.phive_router.php` in Visual Studio Code settings.
 8. The PHP CLI process is spawned: `php -S 0.0.0.0:8000 .phive_router.php`.
 9. The default browser is opened to `http://localhost:8000`.
 
 ### 8.2 Server Launch Sequence (HTTPS Mode)
+
 1. User invokes `phive.startServer` with `phive.enableHTTPS: true`.
 2. `getOrGenerateSSLConfig()` resolves custom certificate paths (absolute or workspace-relative) or generates a self-signed certificate pair.
 3. `portfinder` allocates the public HTTPS port (e.g., `8000`), the WebSocket port (`9001`), and an isolated internal PHP loopback port (e.g., `8010`).
@@ -282,13 +293,16 @@ src/
 7. The browser is opened to `https://localhost:8000`.
 
 ### 8.3 Environment (.env) Hot Restart Sequence
+
 1. A file save event is detected on a file whose name begins with `.env` (e.g., `.env`, `.env.local`).
 2. `LiveReloadServer` fires the `onEnvFileSaved` callback.
 3. `PHPStackManager.restartServer()` kills the existing PHP process and spawns a new PHP instance with identical parameters.
 4. Once the PHP server re-initializes, a `'reload'` command is broadcast to all connected WebSocket clients.
 
 ### 8.4 Clean Teardown Sequence
+
 When `phive.stopServer` is triggered or Visual Studio Code deactivates:
+
 1. The active PHP process is terminated (`child_process.kill()`).
 2. The HTTPS proxy server (if running) is closed.
 3. The WebSocket server is closed and client sockets are terminated.
@@ -305,7 +319,7 @@ Phive provides real-time logging in the Visual Studio Code Output Channel under 
 ### Log Formatting Specification
 
 | Log Category | Prefix | Theme Highlighting Grammar |
-| :--- | :--- | :--- |
+| --- | --- | --- |
 | **2xx Success** | `[INFO] [200 OK]` | Green |
 | **3xx Redirection** | `[WARN] [302 REDIRECT]` | Yellow |
 | **4xx Client Error** | `[WARN] [404 NOT FOUND]` | Yellow / Orange |
@@ -318,13 +332,14 @@ Phive provides real-time logging in the Visual Studio Code Output Channel under 
 
 ```log
 [INFO] [Phive] Attempting to start using: php
-[INFO] [Phive] Server active: http://192.168.1.100:8000
-[LOG] 10:15:00 AM - PHP 8.4.0 Development Server (http://0.0.0.0:8000) started
+[INFO] [Phive] Server active: [http://192.168.1.100:8000](http://192.168.1.100:8000)
+[LOG] 10:15:00 AM - PHP 8.4.0 Development Server ([http://0.0.0.0:8000](http://0.0.0.0:8000)) started
 [INFO] [Req #1] 10:15:05 AM - 127.0.0.1:52130 Accepted
 [INFO] [200 OK] 10:15:05 AM - [200]: GET /index.php
 [INFO] [Req #2] 10:15:08 AM - 127.0.0.1:52138 Accepted
 [WARN] [404 NOT FOUND] 10:15:08 AM - [404]: GET /favicon.ico
 [WARN] [Phive] Server stopped (Code: 0)
+
 ```
 
 ---
@@ -332,18 +347,22 @@ Phive provides real-time logging in the Visual Studio Code Output Channel under 
 ## 10. Troubleshooting and Common Issues
 
 ### Issue 1: "PHP executable not found"
+
 * **Cause**: The `php` binary is not in your system environment `PATH`.
 * **Solution**: Open Settings (`Ctrl+,`), search for `phive.phpPath`, and provide the full path to your PHP executable (e.g., `C:\php\php.exe` or `/usr/bin/php`).
 
 ### Issue 2: "Invalid request (Unsupported SSL request)" in Server Logs
+
 * **Cause**: An HTTPS request was sent directly to a plain HTTP PHP server. This occurs when accessing `https://localhost:8000` while `phive.enableHTTPS` is set to `false`.
 * **Solution**: Enable `phive.enableHTTPS: true` in settings so that the HTTPS reverse proxy intercepts and terminates the TLS handshake before routing traffic to PHP.
 
 ### Issue 3: "Missing SSL certificates" / "Fichiers SSL introuvables"
+
 * **Cause**: Custom certificate paths in `phive.sslCertPath` or `phive.sslKeyPath` do not exist.
 * **Solution**: Verify the file paths. Relative paths (e.g., `certs/server.crt`) must be relative to the active workspace folder. Alternatively, clear both path settings to allow Phive to auto-generate certificates.
 
 ### Issue 4: Live Reload Not Working on Mobile Device
+
 * **Cause**: The mobile device is on a different Wi-Fi subnet, or the host machine firewall is blocking incoming TCP traffic on the HTTP and WebSocket ports.
 * **Solution**: Ensure both devices are connected to the same local network. Allow inbound TCP connections on ports `8000` and `9001` in your operating system firewall settings.
 
@@ -352,40 +371,48 @@ Phive provides real-time logging in the Visual Studio Code Output Channel under 
 ## 11. Licensing, Governance, and Contributions
 
 ### License
-Phive is licensed under the **FomaDev Public License (FPL)**.
-* **Personal and Internal Development**: Free for individual and organizational development use.
-* **Commercial Distribution Restrictions**: Redistribution, repackaging, or reselling of modified binaries or source code on public marketplaces without written authorization from FomaDev is prohibited.
+
+Phive is open source and licensed under the **MIT License**. See the [LICENSE](https://www.google.com/search?q=LICENSE) file in the project root for full license terms.
+
+* **Permissive Use**: You are free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software in accordance with the MIT License.
+* **Attribution Requirement**: The copyright notice (`Copyright (c) 2026 fordimalanda`) and permission notice must be included in all copies or substantial portions of the software.
 
 ### Contribution Guidelines
+
 1. Review `CONTRIBUTING.md` prior to submitting changes.
 2. Fork the repository and create a feature branch (`feature/` or `fix/`).
-3. Verify compilation without errors (`npm run compile`).
+3. Verify compilation without errors (`npm run compile` / `npm run package`).
 4. Test changes using the Visual Studio Code Extension Development Host (`F5`).
-5. Open a Pull Request targeting the `main` branch of `fomadev/phive`.
+5. Open a Pull Request targeting the `main` branch of `fordimalanda/phive`.
 
 ---
 
 ## 12. Release History and Changelog
 
 ### v1.2.1 (Current Release)
+
 * **Dependency Upgrades & Maintenance**:
-  * Bump `open` from `11.0.0` to `11.0.1` ([#28](https://github.com/fomadev/phive/pull/28)): Improved reliable browser process launching across host operating systems.
-  * Bump `ip-address` from `10.4.0` to `10.7.0` ([#29](https://github.com/fomadev/phive/pull/29)): Updated network IP address parsing and validation engine.
-  * Bump `ws` from `8.21.2` to `8.21.3` ([#30](https://github.com/fomadev/phive/pull/30)): WebSocket protocol stability, connection handling, and security updates for the live reload engine.
-  * Bump dev dependency `@types/node` from `26.2.0` to `26.3.0` ([#32](https://github.com/fomadev/phive/pull/32)): Synchronized TypeScript definitions with Node.js runtime.
+* Bump `open` from `11.0.0` to `11.0.1` ([#28](https://github.com/fordimalanda/phive/pull/28)): Improved reliable browser process launching across host operating systems.
+* Bump `ip-address` from `10.4.0` to `10.7.0` ([#29](https://github.com/fordimalanda/phive/pull/29)): Updated network IP address parsing and validation engine.
+* Bump `ws` from `8.21.2` to `8.21.3` ([#30](https://github.com/fordimalanda/phive/pull/30)): WebSocket protocol stability, connection handling, and security updates for the live reload engine.
+* Bump dev dependency `@types/node` from `26.2.0` to `26.3.0` ([#32](https://github.com/fordimalanda/phive/pull/32)): Synchronized TypeScript definitions with Node.js runtime.
+
 * **Documentation & Versioning**:
-  * Synchronized all technical specifications, packaging guides, and configuration references to version `1.2.1`.
+* Synchronized all technical specifications, packaging guides, and configuration references to version `1.2.1`.
 
 ### v1.2.0
+
 * **Dual Protocol Architecture (HTTPS Reverse Proxy)**:
-  * Integrated Node.js HTTPS reverse proxy with TLS termination forwarding traffic to an internal PHP process.
-  * Added `phive.enableHTTPS`, `phive.sslCertPath`, and `phive.sslKeyPath` configuration settings.
-  * Built-in automatic self-signed 2048-bit RSA certificate generator with OpenSSL fallback and caching.
+* Integrated Node.js HTTPS reverse proxy with TLS termination forwarding traffic to an internal PHP process.
+* Added `phive.enableHTTPS`, `phive.sslCertPath`, and `phive.sslKeyPath` configuration settings.
+* Built-in automatic self-signed 2048-bit RSA certificate generator with OpenSSL fallback and caching.
+
 * **Dynamic WebSocket Host Resolution**:
-  * Injected live-reload client resolves `window.location.hostname` dynamically at runtime for LAN/WiFi testing.
+* Injected live-reload client resolves `window.location.hostname` dynamically at runtime for LAN/WiFi testing.
+
 * **TLS Resilience**:
-  * Implemented `tlsClientError` event listeners preventing proxy crashes during aborted or untrusted handshakes.
+* Implemented `tlsClientError` event listeners preventing proxy crashes during aborted or untrusted handshakes.
 
 ---
 
-Document updated for **Phive v1.2.1** by **FomaDev**.
+Document updated for **Phive v1.2.1** by **fordimalanda**.

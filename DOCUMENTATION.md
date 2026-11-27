@@ -1,4 +1,4 @@
-# Phive (PHP Live Server) v1.2.1: Technical Documentation and User Guide
+# Phive (PHP Live Server) v1.3.0: Technical Documentation and User Guide
 
 ---
 
@@ -83,7 +83,7 @@ Phive utilizes `portfinder` to verify the availability of the HTTP/HTTPS port (d
 ### Installation from VSIX Package
 1. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
 2. Select **Extensions: Install from VSIX...**.
-3. Choose the `.vsix` package file (e.g., `phive-1.2.1.vsix`) and confirm installation.
+3. Choose the `.vsix` package file (e.g., `phive-1.3.0.vsix`) and confirm installation.
 
 ---
 
@@ -164,6 +164,7 @@ src/
 
 #### HTTP Mode Architecture
 
+
 ```
 
 +-------------------------------------------------------------+
@@ -186,6 +187,7 @@ v                                       v
 ```
 
 #### HTTPS Reverse Proxy Architecture
+
 
 ```
 
@@ -389,13 +391,27 @@ Phive is open source and licensed under the **MIT License**. See the [LICENSE](h
 
 ## 12. Release History and Changelog
 
-### v1.2.1 (Current Release)
+### v1.3.0 (Current Release)
+
+* **Open Source Transition (MIT License)**:
+* Relicensed the project under the standard [MIT License](https://www.google.com/search?q=LICENSE).
+* Updated contribution guidelines (`CONTRIBUTING.md`) and CI/CD release headers (`release.yml`).
+
+* **Repository & Marketplace Migration**:
+* Migrated official repository ownership and Visual Studio Code Marketplace publisher namespace to `fordimalanda` (`fordimalanda.phive`).
+* Updated extension branding and documentation references.
+
+* **Dependency Maintenance**:
+* Updated runtime dependencies (`ip-address` `^10.7.6`, `open` `^11.0.2`, `ws` `^8.22.1`) and TypeScript toolchain (`^6.0.3`).
+
+### v1.2.1
 
 * **Dependency Upgrades & Maintenance**:
 * Bump `open` from `11.0.0` to `11.0.1` ([#28](https://github.com/fordimalanda/phive/pull/28)): Improved reliable browser process launching across host operating systems.
 * Bump `ip-address` from `10.4.0` to `10.7.0` ([#29](https://github.com/fordimalanda/phive/pull/29)): Updated network IP address parsing and validation engine.
 * Bump `ws` from `8.21.2` to `8.21.3` ([#30](https://github.com/fordimalanda/phive/pull/30)): WebSocket protocol stability, connection handling, and security updates for the live reload engine.
 * Bump dev dependency `@types/node` from `26.2.0` to `26.3.0` ([#32](https://github.com/fordimalanda/phive/pull/32)): Synchronized TypeScript definitions with Node.js runtime.
+
 
 * **Documentation & Versioning**:
 * Synchronized all technical specifications, packaging guides, and configuration references to version `1.2.1`.
@@ -415,4 +431,4 @@ Phive is open source and licensed under the **MIT License**. See the [LICENSE](h
 
 ---
 
-Document updated for **Phive v1.2.1** by **fordimalanda**.
+Document updated for **Phive v1.3.0** by **fordimalanda**.
